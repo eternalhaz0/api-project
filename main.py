@@ -63,6 +63,12 @@ class StaticMap(QMainWindow):
         current_delta = None
         if event_change_type == 'up':
             current_delta = (0, 1)
+        if event_change_type == 'down':
+            current_delta = (0, -1)
+        if event_change_type == 'left':
+            current_delta = (-1, 0)
+        if event_change_type == 'right':
+            current_delta = (1, 0)
         new_LL = (self.current_LL[0] + current_delta[0], self.current_LL[1] + current_delta[1])
         if 0 <= new_LL[0] <= 90 and 0 <= new_LL[1] <= 180:
             self.current_LL = new_LL
@@ -70,6 +76,12 @@ class StaticMap(QMainWindow):
     def keyReleaseEvent(self, event):
         if event.key() == QtCore.Qt.Key.Key_Up:
             self.changeMapCenterPoint('up')
+        if event.key() == QtCore.Qt.Key.Key_Down:
+            self.changeMapCenterPoint('down')
+        if event.key() == QtCore.Qt.Key.Key_Left:
+            self.changeMapCenterPoint('left')
+        if event.key() == QtCore.Qt.Key.Key_Right:
+            self.changeMapCenterPoint('right')
         self.getImage()
         
     def closeEvent(self, event):
