@@ -5,6 +5,7 @@ import requests
 from PyQt5 import uic
 from PyQt5.QtGui import QPixmap, QWheelEvent
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QMainWindow
+from PyQt5 import QtCore
 
 SCREEN_SIZE = [600, 450]
 
@@ -56,12 +57,26 @@ class StaticMap(QMainWindow):
         new_spn = (self.current_spn[0] + current_change, self.current_spn[1] + current_change)
         if 0 <= new_spn[0] <= 90 and 0 <= new_spn[1] <= 90:
             self.current_spn = new_spn
+     
+    def changeMapCenterPoint(self, event_change_type: str):
+        current_change = 1
+        current_delta = None
+        if event_change_type == 'up':
+            current_delta = (0, 1)
+        new_LL = (self.current_LL[0] + current_delta[0], self.current_LL[1] + current_delta[1])
+        if 0 <= new_LL[0] <= 90 and 0 <= new_LL[1] <= 180:
+            self.current_LL = new_LL
 
+    def keyReleaseEvent(self, event):
+        if event.key() == QtCore.Qt.Key.Key_Up:
+            self.changeMapCenterPoint('up')
+        self.getImage()
+        
     def closeEvent(self, event):
         """При закрытии формы подчищаем за собой"""
         os.remove(self.map_file)
 
-
+    
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     ex = StaticMap()
