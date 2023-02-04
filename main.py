@@ -40,8 +40,13 @@ class StaticMap(QMainWindow):
         with open(self.map_file, "wb") as file:
             file.write(response.content)
 
+        ## Изображение
+        self.pixmap = QPixmap(self.map_file)
+        self.image.setPixmap(self.pixmap)
+
     def initUI(self):
-        uic.loadUi('static_map.ui', self)  # Загружаем дизайн
+        uic.loadUi('ui\main_window.ui', self)  # Загружаем дизайн
+        self.change_map_type.itemClicked.connect(self.change_map_type_func)
 
     def wheelEvent(self, event: QWheelEvent) -> None:
         if event.angleDelta().y() > 0:
@@ -57,9 +62,8 @@ class StaticMap(QMainWindow):
         new_spn = (self.current_spn[0] + current_change, self.current_spn[1] + current_change)
         if 0 <= new_spn[0] <= 90 and 0 <= new_spn[1] <= 90:
             self.current_spn = new_spn
-     
+
     def changeMapCenterPoint(self, event_change_type: str):
-        current_change = 1
         current_delta = None
         if event_change_type == 'up':
             current_delta = (0, 1)
@@ -83,12 +87,22 @@ class StaticMap(QMainWindow):
         if event.key() == QtCore.Qt.Key.Key_Right:
             self.changeMapCenterPoint('right')
         self.getImage()
-        
+
     def closeEvent(self, event):
         """При закрытии формы подчищаем за собой"""
         os.remove(self.map_file)
 
-    
+    def change_map_type_func(self):
+        map_type = self.change_map_type.selectedItems()[0].text()
+        if map_type == 'Схема':
+            self.current_map_type = 'map'
+        if map_type == 'Спутник':
+            self.current_map_type = 'sat'
+        if map_type == 'Гибрид':
+            self.current_map_type = 'sat,skl'
+        self.getImage()
+
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     ex = StaticMap()
