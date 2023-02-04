@@ -3,7 +3,7 @@ import sys
 
 import requests
 from PyQt5 import uic
-from PyQt5.QtGui import QPixmap
+from PyQt5.QtGui import QPixmap, QWheelEvent
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QMainWindow
 
 SCREEN_SIZE = [600, 450]
@@ -18,8 +18,8 @@ class StaticMap(QMainWindow):
 
     def __init__(self):
         super().__init__()
-        self.getImage()
         self.initUI()
+        self.getImage()
 
     def getImage(self):
         map_params = {
@@ -40,11 +40,22 @@ class StaticMap(QMainWindow):
             file.write(response.content)
 
     def initUI(self):
-        uic.loadUi('ui\main_window.ui', self)  # Загружаем дизайн
+        uic.loadUi('static_map.ui', self)  # Загружаем дизайн
 
-        ## Изображение
-        self.pixmap = QPixmap(self.map_file)
-        self.image.setPixmap(self.pixmap)
+    def wheelEvent(self, event: QWheelEvent) -> None:
+        if event.angleDelta().y() > 0:
+            self.changeMapScale('-')
+        else:
+            self.changeMapScale('+')
+        self.getImage()
+
+    def changeMapScale(self, eventScaleType: str):
+        current_change = 1
+        if eventScaleType == '-':
+            current_change = -current_change
+        new_spn = (self.current_spn[0] + current_change, self.current_spn[1] + current_change)
+        if 0 <= new_spn[0] <= 90 and 0 <= new_spn[1] <= 90:
+            self.current_spn = new_spn
 
     def closeEvent(self, event):
         """При закрытии формы подчищаем за собой"""
